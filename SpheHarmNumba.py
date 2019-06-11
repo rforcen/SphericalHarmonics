@@ -10,7 +10,7 @@ SHDefs = [
     ('dv', nb.float32),
     ('dx', nb.float32),
 
-    ('_coords', nb.float32[:, :, :]),
+    ('_coords', nb.float32[:, :, :]),  # resol^2, quads, coord
     ('_normals', nb.float32[:, :]),
     ('_colors', nb.int32[:, :])
 ]
@@ -51,19 +51,17 @@ class SpheHarmNumba:
                 self._coords[i][q] = crd[q]
         return self._coords
 
-    def __normQuad(self, quad):
-        def normVect(v):
-            len = sqrt(np.sum(np.array([c * c for c in v])))
-            if len != 0:
-                return np.array([c / len for c in v], dtype=nb.float32)
-            else:
-                return np.array([0., 0., 0.], dtype=nb.float32)
+    def __normQuad(self, quad):  # quad of coords 4x3
+        def cross(vec1, vec2):
+            """ Calculate the cross product of two 3d vectors. """
+            a1, a2, a3 = vec1[0], vec1[1], vec1[2]
+            b1, b2, b3 = vec2[0], vec2[1], vec2[2]
+            return np.array([a2 * b3 - a3 * b2, a3 * b1 - a1 * b3, a1 * b2 - a2 * b1], dtype=nb.float32)
 
-        pa = np.array(list([x - y for x, y in zip(quad[1], quad[0])]), dtype=nb.float32)
-        pb = np.array(list([x - y for x, y in zip(quad[2], quad[0])]), dtype=nb.float32)
-        n = np.array(list([pa[i] * pb[j] - pa[j] * pb[i] for i, j in ((1, 2), (2, 0), (0, 1))]), dtype=nb.float32)
+        def normalize(v):
+            return v / (np.linalg.norm(v) + 1e-16)
 
-        return normVect(n)
+        return normalize(cross(quad[1] - quad[0], quad[2] - quad[0]))
 
     def normals(self):  # qcoords are quads of coords
         for i in range(self.resol * self.resol):
