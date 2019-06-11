@@ -55,9 +55,9 @@ class RendererGL(QOpenGLWidget):
         self.gl = self.context().versionFunctions()
         self.gl.initializeOpenGLFunctions()
 
-        self.gl.glShadeModel(self.gl.GL_FLAT)
-        self.gl.glEnable(self.gl.GL_DEPTH_TEST)
-        self.gl.glEnable(self.gl.GL_CULL_FACE)
+        # self.gl.glShadeModel(self.gl.GL_FLAT)
+        # self.gl.glEnable(self.gl.GL_DEPTH_TEST)
+        # self.gl.glEnable(self.gl.GL_CULL_FACE)
         self.init(self.gl)  # call user init
 
     def paintGL(self):
@@ -110,3 +110,33 @@ class RendererGL(QOpenGLWidget):
 
     def setColor(self, c):
         self.gl.glColor4f(c.redF(), c.greenF(), c.blueF(), c.alphaF())
+
+    def sceneInit(self, gl):
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_AMBIENT, [0.1, 0.1, 0.1, 1.0])
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_DIFFUSE, [1.0, 1.0, 1.0, 0.0])
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_SPECULAR, [1, 1, 1, 0])
+        gl.glLightfv(gl.GL_LIGHT0, gl.GL_POSITION, [1, 0.5, 1, 0])
+        gl.glEnable(gl.GL_LIGHT0)
+
+        gl.glLightfv(gl.GL_LIGHT1, gl.GL_AMBIENT, [0.1, 0.1, 0.1, 1.0])
+        gl.glLightfv(gl.GL_LIGHT1, gl.GL_DIFFUSE, [1.0, 1.0, 1.0, 0.0])
+        gl.glLightfv(gl.GL_LIGHT1, gl.GL_SPECULAR, [1, 1, 1, 0])
+        gl.glLightfv(gl.GL_LIGHT1, gl.GL_POSITION, [-1, 0.5, -1, 0])
+        gl.glEnable(gl.GL_LIGHT1)
+
+        gl.glLightModelfv(gl.GL_LIGHT_MODEL_TWO_SIDE, [gl.GL_FALSE])
+        gl.glLightModelfv(gl.GL_LIGHT_MODEL_AMBIENT, [0, 0, 0, 0])
+        gl.glEnable(gl.GL_LIGHTING)
+
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_AMBIENT, [0, 0, 0, 1])
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_SHININESS, [40])
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_SPECULAR, [1, 1, 1, 0])
+        gl.glMaterialfv(gl.GL_FRONT, gl.GL_DIFFUSE, [1, 0, 0, 0])
+
+        gl.glEnable(gl.GL_COLOR_MATERIAL)
+        gl.glShadeModel(gl.GL_SMOOTH)
+        gl.glCullFace(gl.GL_FRONT)
+
+        gl.glEnable(gl.GL_LINE_SMOOTH)
+        gl.glHint(gl.GL_LINE_SMOOTH_HINT, gl.GL_NICEST)
+        gl.glHint(gl.GL_POLYGON_SMOOTH_HINT, gl.GL_NICEST)
